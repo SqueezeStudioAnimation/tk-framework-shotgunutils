@@ -22,6 +22,11 @@ class WorkerThread(QtCore.QThread):
     implements a custom run method that loops over tasks until asked to quit.
     """
 
+    # We hold onto a global list of mutex objects created. This is to
+    # handle situations where we are operating in an environment where
+    # garbage collection is particularly aggressive, like in Nuke 11.
+    _MUTEX_OBJECTS = []
+
     def __init__(self, results_dispatcher, parent=None):
         """
         Construction
@@ -34,6 +39,7 @@ class WorkerThread(QtCore.QThread):
         self._task = None
         self._process_tasks = True
         self._mutex = QtCore.QMutex()
+        self._MUTEX_OBJECTS.append(self._mutex)
         self._wait_condition = QtCore.QWaitCondition()
         self._results_dispatcher = results_dispatcher
 
