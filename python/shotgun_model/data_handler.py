@@ -154,13 +154,17 @@ class ShotgunDataHandler(object):
         if os.path.exists(self._cache_path):
             try:
                 with open(self._cache_path, "rb") as fh:
-                    pickler = cPickle.Unpickler(fh)
-                    file_version = pickler.load()
+                    # pickler = cPickle.Unpickler(fh)
+                    # file_version = pickler.load()
+                    data = fh.read()
+                    file_version = cPickle.loads(data)
                     if file_version != self.FORMAT_VERSION:
                         raise ShotgunModelDataError(
                             "Cache file has version %s - version %s is required" % (file_version, self.FORMAT_VERSION)
                         )
-                    raw_cache_data = pickler.load()
+                    data_start = data.find('.') + 1
+                    raw_cache_data = cPickle.loads(data[data_start:])
+                    # raw_cache_data = pickler.load()
                     self._cache = ShotgunDataHandlerCache(raw_cache_data)
             except Exception, e:
                 self._log_debug("Cache '%s' not valid - ignoring. Details: %s" % (self._cache_path, e))
